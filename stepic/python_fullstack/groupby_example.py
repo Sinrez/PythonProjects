@@ -49,3 +49,19 @@ print('STRING')
 print([(i, list(j)) for i, j in itertools.groupby(s)]) 
 
 ######################
+"""
+Напишите функцию, которая принимает на вход строку слов и возвращает словарь, 
+содержащий частоту каждого слова в строке. Словарь должен включать слова в качестве ключей и их частоты в качестве значений.
+"""
+
+
+from typing import Dict
+from itertools import groupby
+
+
+def word_frequencies(string):
+    return {i:len(list(j)) for i,j in groupby(sorted(string.split()))}
+    # Поместите свой код сюда
+
+print(word_frequencies('hello world and hello universe'))
+print(word_frequencies('hello world'))
