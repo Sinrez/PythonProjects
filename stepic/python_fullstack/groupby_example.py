@@ -33,12 +33,12 @@ num_list = [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]
 
 #########################################
 
-# tpl = (1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4)
+tpl = (1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4)
 
-# print('TUPLE')
-# print([(i, list(j)) for i, j in itertools.groupby(tpl)])
+print('TUPLE')
+print([(i, list(j)) for i, j in itertools.groupby(tpl)])
 
-# print(tuple((i, tuple(j)) for i, j in itertools.groupby(tpl) ))
+print(tuple((i, tuple(j)) for i, j in itertools.groupby(tpl) ))
 
 #########################################
 
@@ -55,13 +55,22 @@ print([(i, list(j)) for i, j in itertools.groupby(s)])
 """
 
 
-from typing import Dict
+# from typing import Dict
+# from itertools import groupby
+
+
+# def word_frequencies(string):
+#     return {i:len(list(j)) for i,j in groupby(sorted(string.split()))}
+#     # Поместите свой код сюда
+
+# print(word_frequencies('hello world and hello universe'))
+# print(word_frequencies('hello world'))
+
 from itertools import groupby
 
+def group_integers(names):
+    return [[*list(j)] for i, j in groupby(sorted(names))]
 
-def word_frequencies(string):
-    return {i:len(list(j)) for i,j in groupby(sorted(string.split()))}
-    # Поместите свой код сюда
-
-print(word_frequencies('hello world and hello universe'))
-print(word_frequencies('hello world'))
+print(group_integers([1, 2, 3, 4, 3, 2, 1]))
+print(group_integers([-1, -2, 3, -2, 4, -1]))
+print(group_integers([5, 5, 5, 5, 5]))
