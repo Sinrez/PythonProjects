@@ -1,26 +1,32 @@
-from string import ascii_lowercase, digits
+from string import digits
 
 class PhoneBook:    
-    def remove_phone(self,indx):
-        pass
+    def __init__(self) -> None:
+        self.phones = []
+
+    def add_phone(self,phone):
+        self.phones.append(phone)
 
     def get_phone_list(self):
-        pass
+        return self.phones
 
     def remove_phone(self, indx):
-        pass
+        self.phones.pop(indx)
 
 class PhoneNumber:
     def __init__(self,number,fio) -> None:
         self.set_number(number)
-        self.fio = fio
+        self.set_fio(fio)
 
     def set_number(self, number):
-        if len(number) == 11 and set(number) < set(digits):
+        # if len(str(number)) == 11 and set(str(number)) < set(digits):
+        if len(str(number)) == 11 and type(number) == int:
             self.number = number   
     
     def set_fio(self, fio):
-        pass
+        if fio.isalpha():
+            self.fio = fio
+
 
 p = PhoneBook()
 p.add_phone(PhoneNumber(12345678901, "Сергей Балакирев"))
