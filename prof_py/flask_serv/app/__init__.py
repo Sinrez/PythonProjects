@@ -52,11 +52,16 @@ def create_app():
 
         _configure_logging(app, dynaconf)
 
-        # import the routes
+        # import the routes Раздел маршрутов
         from . import intro
+        from . import auth
 
         # register the blueprints
         app.register_blueprint(intro.intro_bp)
+        app.register_blueprint(auth.auth_bp)
+
+        # create the database if necessary Пилим базу данных если надо
+        db.create_all()
 
         return app
 
