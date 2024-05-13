@@ -1,9 +1,9 @@
 .banner.card {
-    border: 0;
-    border-radius: 0;
-    background-clip: none;
-  }
-  
+  border: 0;
+  border-radius: 0;
+  background-clip: none;
+}
+
 .banner {
   display: none;
 }
@@ -13,4 +13,12 @@
     display: block;
     background: var(--background-url) no-repeat center center / cover;
   }
+}
+
+a.current-user {
+  border-right: solid 1px white;
+}
+
+.nav-link {
+  padding: 0 .5rem;
 }
