@@ -24,14 +24,15 @@ class Person:
 
 class Customer(Person):
     """Класс покупатель"""
-    client_id = 1 
+    client_id_counter = 1 
 
-    def __init__(self, name, age, address):
-        super().__init__(name, age, address)
-        self.client_id = Customer.client_id  # присваиваем id покупателя
-        Customer.client_id += 1  # увеличиваем id для следующего покупателя
+    def __init__(self, name, phone_number, address):
+        super().__init__(name, phone_number, address)
+        self.client_id = Customer.client_id_counter  # присваиваем id покупателя
+        Customer.client_id_counter += 1  # увеличиваем id для следующего покупателя
 
-class ShoppingCard:
+
+class ShoppingCart:
     """Корзина для покупок"""
     def __init__(self):
         self.product_list = []
@@ -64,26 +65,26 @@ class ShoppingCard:
         else:
             print(f'Все {title} удалены!')
 
+
 class FailedClientID(Exception):
     pass
 
 class Shop:
     """магазин, который работает с клиентами и их покупками"""
     def __init__(self):
-        #используется для хранения клиентов и их корзин покупок
+        # используется для хранения клиентов и их корзин покупок
         self.customers = {}
     
-    def add_customer(self, customer, shoppingcard):
+    def add_customer(self, customer, shopping_cart):
         """позволяет добавлять клиента и его корзину покупок в магазин"""
-        self.customers[customer] = shoppingcard
+        self.customers[customer.client_id] = shopping_cart
     
     def get_order_shopping(self, client_id):
         """возвращает общую стоимость всех товаров в корзине покупок клиента по его ID"""
-        for client, shoppingcard in self.customers.items():
-            if client_id in self.customers.keys():
-                return shoppingcard.calculate_total()
-            else:
-                raise FailedClientID(f'Корзины покупок для клиента c id={client_id} не найдено!')
+        if client_id in self.customers:
+            return self.customers[client_id].calculate_total()
+        else:
+            raise FailedClientID(f'Корзины покупок для клиента c id={client_id} не найдено!')
 
 
 if __name__ == '__main__':
@@ -91,10 +92,10 @@ if __name__ == '__main__':
         customer1 =Customer('Pert', 42, 'Мск')
         customer2 =Customer('Sveta', 30, 'Спб')
         customer3 =Customer('Vova', 25, 'Екб')
-        shoppingCard1 = ShoppingCard()
+        shoppingCard1 = ShoppingCart()
         shoppingCard1.add_list_product('яблоки', 2, 10)
         shoppingCard1.add_list_product('вода', 3, 20)
-        shoppingCard2 = ShoppingCard()
+        shoppingCard2 = ShoppingCart()
         shoppingCard2.add_list_product('хлеб', 2, 10)
         shoppingCard2.add_list_product('виноград', 1, 30)
         shop = Shop()
