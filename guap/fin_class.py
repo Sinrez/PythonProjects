@@ -46,10 +46,13 @@ class ShoppingCart:
         for product in self.product_list:
             if product[0] == title:
                 return product
+    
+    def get_product_list(self):
+        return ', '.join([product[0] for product in self.product_list])
 
     def calculate_total(self):
         """возвращает суммарную цену всех продуктов"""
-        return f'Цена всех товаров в корзине: {sum(product[1] * product[2] for product in self.product_list)}'
+        return f'цена всех товаров в корзине: {sum(product[1] * product[2] for product in self.product_list)}'
     
     def remove_product(self, title):
         product = self.get_product_by_title(title)
@@ -64,7 +67,6 @@ class ShoppingCart:
                 print(f'Сейчас в корзине: {self.get_product_by_title(title)}')
         else:
             print(f'Все {title} удалены!')
-
 
 class FailedClientID(Exception):
     pass
@@ -82,7 +84,14 @@ class Shop:
     def get_order_shopping(self, client_id):
         """возвращает общую стоимость всех товаров в корзине покупок клиента по его ID"""
         if client_id in self.customers:
-            return self.customers[client_id].calculate_total()
+            return f'Клиент {client_id} : {self.customers[client_id].calculate_total()}'
+        else:
+            raise FailedClientID(f'Корзины покупок для клиента c id={client_id} не найдено!')
+    
+    def get_shopping_customer(self, client_id):
+        "возвращает список товаров клиент по его ID"
+        if client_id in self.customers:
+            return f'Клиент {client_id}, список продуктов: {self.customers[client_id].get_product_list()}'
         else:
             raise FailedClientID(f'Корзины покупок для клиента c id={client_id} не найдено!')
 
@@ -104,6 +113,9 @@ if __name__ == '__main__':
         # print(shop.customers)
         print(shop.get_order_shopping(customer1.client_id))
         print(shop.get_order_shopping(customer2.client_id))
+        print(shop.get_shopping_customer(customer1.client_id))
+        print(shop.get_shopping_customer(customer2.client_id))
+        print(shop.get_shopping_customer(customer3.client_id))       
         print(shop.get_order_shopping(customer3.client_id))
     except FailedClientID as fa_id:
         print(fa_id)
