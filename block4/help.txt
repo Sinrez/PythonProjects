@@ -1,0 +1,3 @@
+poetry run python3  hashing_strings.py
+
+source block_env/bin/activate
