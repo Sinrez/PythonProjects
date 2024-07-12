@@ -33,6 +33,11 @@ class Blockchain(object):
 
         # Сбрасывает список незавершенных транзакций
         self.pending_transactions = []
+        # Добавляет блок в цепочку
+        self.chain.append(block)
+        print(f"Created block {block['index']}")
+        print()
+        pprint(block)
         return block
 
     @staticmethod
@@ -55,13 +60,9 @@ class Blockchain(object):
                 break
 
         self.chain.append(new_block)
-        print("Found a new block: " )
-        pprint(new_block)
+        print("Found a new block: ", new_block)
 
 if __name__ == '__main__':
     bc = Blockchain()
     print()
-    # bc.new_block(previous_hash=bc.chain[0]['hash'])
-    bc.proof_of_work()
-    bc.proof_of_work()
-    bc.proof_of_work()
+    bc.new_block(previous_hash=bc.chain[0]['hash'])
