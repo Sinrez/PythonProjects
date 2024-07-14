@@ -1,0 +1,4 @@
+https://pypi.org/project/FlightRadarAPI/
+
+source fly_env/bin/activate
+

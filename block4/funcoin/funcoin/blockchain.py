@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from pprint import pprint
 from hashlib import sha256
 import random
+import easygui
 
 class Blockchain(object):
     def __init__(self):
@@ -17,12 +18,12 @@ class Blockchain(object):
         # # Получает последний блок в проходе цепочки
         return self.chain[-1] if self.chain else None
 
-    def new_block(self, previous_hash=None):
+    def new_block(self, previous_hash=None,  content_transactions=None):
         # Генерирует новый блок и добавляет его в цепь
         block = {
             'index': len(self.chain),
             'timestamp': datetime.now(timezone.utc).isoformat(),
-            'transactions': self.pending_transactions,
+            'content_transactions': content_transactions,
             'previous_hash': previous_hash,
             'nonce': format(random.getrandbits(64), "x")
         }        
@@ -47,21 +48,47 @@ class Blockchain(object):
         # Проверяем, что хэш блока начинается с 4 нулей 0000
         return block["hash"].startswith("0000")
 
-    def proof_of_work(self):
+    def proof_of_work(self, content_transactions=None):
         #подтверждение выполненной работы через подбор блока
         while True:
-            new_block = self.new_block()
+            prev_hash = self.last_block()["hash"] if self.last_block() else None
+            new_block = self.new_block(prev_hash, content_transactions)
             if self.valid_block(new_block):
                 break
-
+    
         self.chain.append(new_block)
+        msg = f"Found a new block:\n{json.dumps(new_block, indent=4)}"
+        easygui.msgbox(msg, title="New Block Found")
+
+        #консоль для отладки оставим
         print("Found a new block: " )
         pprint(new_block)
+    
+    def return_all_blocks(self):
+        return self.chain
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     bc = Blockchain()
-    print()
-    # bc.new_block(previous_hash=bc.chain[0]['hash'])
-    bc.proof_of_work()
-    bc.proof_of_work()
-    bc.proof_of_work()
+
+    while True:
+        title = "Data input to blockchain"
+        choice = easygui.buttonbox("Select an option:", title=title, choices=["Add to Blockchain", "Show full blockchain", "Exit"])
+
+        if choice == "Add to Blockchain":
+            data = easygui.enterbox("Enter data:", title=title)
+            if data:
+                bc.proof_of_work(data)
+            else:
+                bc.proof_of_work()
+        elif choice == "Show full blockchain":
+            blocks = bc.return_all_blocks()
+            if blocks:
+                msg = "Blockchain:\n\n"
+                for block in blocks:
+                    msg += json.dumps(block, indent=4) + "\n\n"
+                easygui.msgbox(msg, title="Full Blockchain")
+            else:
+                easygui.msgbox("Blockchain is empty.", title="Full Blockchain")
+        elif choice == "Exit":
+            break
