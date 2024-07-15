@@ -5,20 +5,38 @@ from hashlib import sha256
 import random
 import easygui
 
+
+class ImmutableList(object):
+    #класс-обёрткf, управляет доступом к списку для эмуляции "неизменности" блокчейна
+    def __init__(self):
+        self._list = []
+
+    def append(self, item):
+        self._list.append(item)
+
+    def __getitem__(self, index):
+        return self._list[index]
+
+    def __len__(self):
+        return len(self._list)
+
+    def __repr__(self):
+        return repr(self._list)
+
+
 class Blockchain(object):
     def __init__(self):
-        self.__chain = []
-        #self.__pending_transactions = [] #  список незавершенных транзакций
+        self.__chain = ImmutableList()
 
-        # Делаем нулевой блок генезиса- начальный блок
+        # Делаем нулевой блок генезиса - начальный блок
         print("Creating genesis block")
         self.new_block()
 
     def last_block(self):
-        # # Получает последний блок в проходе цепочки
-        return self.__chain[-1] if self.__chain else None
+        # Получает последний блок в цепочке
+        return self.__chain[-1] if len(self.__chain) > 0 else None
 
-    def new_block(self, previous_hash=None,  content_transactions=None):
+    def new_block(self, previous_hash=None, content_transactions=None):
         # Генерирует новый блок и добавляет его в цепь
         block = {
             'index': len(self.__chain),
@@ -26,7 +44,7 @@ class Blockchain(object):
             'content_transactions': content_transactions,
             'previous_hash': previous_hash,
             'nonce': format(random.getrandbits(64), "x")
-        }        
+        }
 
         # Возвращает хэш этого нового блока и добавляет его в блок
         block_hash = self.hash(block)
@@ -49,23 +67,23 @@ class Blockchain(object):
         return block["hash"].startswith("0000")
 
     def proof_of_work(self, content_transactions=None):
-        #подтверждение выполненной работы через подбор блока
+        # подтверждение выполненной работы через подбор блока
         while True:
             prev_hash = self.last_block()["hash"] if self.last_block() else None
             new_block = self.new_block(prev_hash, content_transactions)
             if self.valid_block(new_block):
                 break
-    
+
         self.__chain.append(new_block)
         msg = f"Found a new block:\n{json.dumps(new_block, indent=4)}"
         easygui.msgbox(msg, title="New Block Found")
 
-        #консоль для отладки оставим
-        print("Found a new block: " )
+        # консоль для отладки оставим
+        print("Found a new block:")
         pprint(new_block)
-    
+
     def return_all_blocks(self):
-        return self.__chain
+        return list(self.__chain)
 
 
 if __name__ == "__main__":
