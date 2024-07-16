@@ -1,15 +1,26 @@
-from fastapi import FastAPI
-from th_blockhain import Blockchain, ImmutableList
+import uvicorn
+from fastapi import FastAPI, Depends, HTTPException
+import sqlite3
 import json
 
+# Initialize FastAPI app
 app = FastAPI()
-bc = Blockchain()
 
+# SQLite database connection
+conn = sqlite3.connect('blockchain.db')
+cur = conn.cursor()
+
+# Endpoint to fetch all blocks from the blockchain
 @app.get("/blockchain")
-async def get_blockchain():
-    blocks = bc.return_all_blocks()
-    return {"blockchain": blocks}
+async def read_blockchain():
+    try:
+        cur.execute('SELECT json_data FROM blocks ORDER BY id')
+        rows = cur.fetchall()
+        blocks = [json.loads(row[0]) for row in rows]
+        return {"blockchain": blocks}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch blockchain: {str(e)}")
 
+# Run the FastAPI server
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="localhost", port=8000)
+    uvicorn.run(app, host="127.0.0.1", port=8000)

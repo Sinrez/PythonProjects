@@ -15,6 +15,7 @@ toml
 db
 .db
 db.sqlite3
+blockchain.db
 ../.db.sqlite3
 ./.db.sqlite3
 /.db.sqlite3

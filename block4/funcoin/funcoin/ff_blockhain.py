@@ -4,21 +4,71 @@ from pprint import pprint
 from hashlib import sha256
 import random
 import easygui
+from pprint import pprint
+import sqlite3
+
+
+class ImmutableList:
+    def __init__(self):
+        self._list = []
+        
+
+    def append(self, item):
+        self._list.append(item)
+
+    def __getitem__(self, index):
+        return self._list[index]
+
+    def __len__(self):
+        return len(self._list)
+
+    def __repr__(self):
+        return repr(self._list)
+
 
 class Blockchain(object):
     def __init__(self):
-        self.__chain = []
-        #self.__pending_transactions = [] #  список незавершенных транзакций
+        self.__chain = ImmutableList()
+        self.init_db()
 
-        # Делаем нулевой блок генезиса- начальный блок
+        # Делаем нулевой блок генезиса - начальный блок
         print("Creating genesis block")
         self.new_block()
 
-    def last_block(self):
-        # # Получает последний блок в проходе цепочки
-        return self.__chain[-1] if self.__chain else None
+    def init_db(self):
+        self.conn = sqlite3.connect('blockchain.db')
+        self.cur = self.conn.cursor()
+        self.cur.execute('''
+            CREATE TABLE IF NOT EXISTS blocks (
+                id INTEGER PRIMARY KEY,
+                timestamp TEXT,
+                hash TEXT,
+                previous_hash TEXT,
+                json_data TEXT
+            )
+        ''')
+        self.conn.commit()
 
-    def new_block(self, previous_hash=None,  content_transactions=None):
+    def save_block_to_db(self, block):
+        self.cur.execute('''
+            INSERT INTO blocks (timestamp, hash, previous_hash, json_data)
+            VALUES (?, ?, ?, ?)
+        ''', (block['timestamp'], block['hash'], block['previous_hash'], json.dumps(block)))
+        self.conn.commit()
+
+    def load_blocks_from_db(self):
+        self.cur.execute('SELECT json_data FROM blocks ORDER BY id')
+        rows = self.cur.fetchall()
+        for row in rows:
+            block = json.loads(row[0])
+            self.__chain.append(block)
+
+
+    def last_block(self):
+        # Получает последний блок в цепочке
+        return self.__chain[-1] if len(self.__chain) > 0 else None
+
+    def new_block(self, previous_hash=None, content_transactions=None):
         # Генерирует новый блок и добавляет его в цепь
         block = {
             'index': len(self.__chain),
@@ -26,14 +76,11 @@ class Blockchain(object):
             'content_transactions': content_transactions,
             'previous_hash': previous_hash,
             'nonce': format(random.getrandbits(64), "x")
-        }        
+        }
 
         # Возвращает хэш этого нового блока и добавляет его в блок
         block_hash = self.hash(block)
         block["hash"] = block_hash
-
-        # Сбрасывает список незавершенных транзакций
-        self.__pending_transactions = []
         return block
 
     @staticmethod
@@ -49,23 +96,19 @@ class Blockchain(object):
         return block["hash"].startswith("0000")
 
     def proof_of_work(self, content_transactions=None):
-        #подтверждение выполненной работы через подбор блока
+        # подтверждение выполненной работы через подбор блока
         while True:
             prev_hash = self.last_block()["hash"] if self.last_block() else None
             new_block = self.new_block(prev_hash, content_transactions)
             if self.valid_block(new_block):
                 break
-    
-        self.__chain.append(new_block)
-        msg = f"Found a new block:\n{json.dumps(new_block, indent=4)}"
-        easygui.msgbox(msg, title="New Block Found")
 
-        #консоль для отладки оставим
-        print("Found a new block: " )
+        self.__chain.append(new_block)
+        print("Found a new block:")
         pprint(new_block)
-    
+
     def return_all_blocks(self):
-        return self.__chain
+        return list(self.__chain)
 
 
 if __name__ == "__main__":
@@ -73,7 +116,7 @@ if __name__ == "__main__":
 
     while True:
         title = "Data input to blockchain"
-        choice = easygui.buttonbox("Select an option:", title=title, choices=["Add to Blockchain", "Show full blockchain", "Exit"])
+        choice = easygui.buttonbox("Select an option:", title=title, choices=["Add to Blockchain", "Show full blockchain", "Save Blockchain to DB", "Exit"])
 
         if choice == "Add to Blockchain":
             data = easygui.enterbox("Enter data:", title=title)
@@ -90,5 +133,9 @@ if __name__ == "__main__":
                 easygui.msgbox(msg, title="Full Blockchain")
             else:
                 easygui.msgbox("Blockchain is empty.", title="Full Blockchain")
+        elif choice == "Save Blockchain to DB":
+                for block in bc.return_all_blocks():
+                    bc.save_block_to_db(block)
+                easygui.msgbox("Blockchain saved to database successfully.", title="Save Blockchain")
         elif choice == "Exit":
-            break
+                break        
