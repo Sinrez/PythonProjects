@@ -12,7 +12,6 @@ class ImmutableList:
     def __init__(self):
         self._list = []
         
-
     def append(self, item):
         self._list.append(item)
 
@@ -66,13 +65,14 @@ class Blockchain(object):
 
     def last_block(self):
         # Получает последний блок в цепочке
-        return self.__chain[-1] if len(self.__chain) > 0 else None
+        return self.__chain.__getitem__(-1) if len(self.__chain) > 0 else None
 
     def new_block(self, previous_hash=None, content_transactions=None):
-        # Генерирует новый блок и добавляет его в цепь
+        """Генерирует новый блок и добавляет его в цепь"""
         block = {
-            'index': len(self.__chain),
-            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'index': self.__chain.__len__(),
+            # 'timestamp': datetime.now(timezone.utc).isoformat(),
+            'timestamp': datetime.now(timezone.utc).strftime('%d:%m:%Y %H:%M:%S.%f'),
             'content_transactions': content_transactions,
             'previous_hash': previous_hash,
             'nonce': format(random.getrandbits(64), "x")
@@ -110,32 +110,26 @@ class Blockchain(object):
     def return_all_blocks(self):
         return list(self.__chain)
 
-
 if __name__ == "__main__":
     bc = Blockchain()
 
     while True:
-        title = "Data input to blockchain"
-        choice = easygui.buttonbox("Select an option:", title=title, choices=["Add to Blockchain", "Show full blockchain", "Save Blockchain to DB", "Exit"])
-
-        if choice == "Add to Blockchain":
-            data = easygui.enterbox("Enter data:", title=title)
-            if data:
-                bc.proof_of_work(data)
-            else:
-                bc.proof_of_work()
-        elif choice == "Show full blockchain":
+        title = "Ввод данных в блокчейн"
+        choice = easygui.buttonbox("Выберите опцию:", title=title, choices=["Добавить в блокчейн", "Показать весь блокчейн", "Сохранить блокчейн в БД", "Выход"])
+        
+        if choice == "Добавить в блокчейн":
+            content = easygui.enterbox("Введите данные для добавления в блокчейн:")
+            bc.proof_of_work(content)
+        elif choice == "Показать весь блокчейн":
             blocks = bc.return_all_blocks()
             if blocks:
                 msg = "Blockchain:\n\n"
                 for block in blocks:
-                    msg += json.dumps(block, indent=4) + "\n\n"
-                easygui.msgbox(msg, title="Full Blockchain")
-            else:
-                easygui.msgbox("Blockchain is empty.", title="Full Blockchain")
-        elif choice == "Save Blockchain to DB":
-                for block in bc.return_all_blocks():
-                    bc.save_block_to_db(block)
-                easygui.msgbox("Blockchain saved to database successfully.", title="Save Blockchain")
-        elif choice == "Exit":
-                break        
+                    msg += json.dumps(block, indent=4, ensure_ascii=False) + "\n\n"
+                easygui.msgbox(msg, title="Полный блокчейн")
+        elif choice == "Сохранить блокчейн в БД":
+            for block in bc.return_all_blocks():
+                bc.save_block_to_db(block)
+            easygui.msgbox("Блокчейн сохранен в БД.", title="Сохранение")
+        elif choice == "Выход":
+            break
