@@ -4,7 +4,7 @@
 формирует цепочку блоков ввиде списка со связью через хэш каждого следующего блока с предыдущим
 
 ## Архитектура
-<img src= "/block4/funcoin/funcoin/arch.png" width = "600" height = "400" > 
+<img src= "/block4/funcoin/funcoin/arch.png" width = "600" height = "600" > 
 
 ## Интерфейсы
 Реализован простой REST API на FAST API
