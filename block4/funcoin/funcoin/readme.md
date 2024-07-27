@@ -22,6 +22,6 @@
 <img src= "/block4/funcoin/funcoin/UI2.png" width = "600" height = "400">
 
 ## Пример:  
-<img src= "block4/funcoin/funcoin/block_diag.jpg" width = "600" height = "400" > 
+<img src= "/block4/funcoin/funcoin/block_diag.jpg" width = "600" height = "400" > 
 
 
