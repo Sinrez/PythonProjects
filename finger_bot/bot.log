@@ -1,0 +1,5 @@
+00:32:19 - bot - INFO - main: 71 - Ошибка в функции main: module 'config' has no attribute 'TOKEN'
+00:32:30 - bot - INFO - main: 71 - Ошибка в функции main: Updater.__init__() got an unexpected keyword argument 'use_context'
+00:33:11 - bot - INFO - main: 72 - Ошибка в функции main: Updater.__init__() missing 1 required positional argument: 'update_queue'
+00:35:55 - bot_old - INFO - main: 60 - Бот стартовал!
+00:35:55 - bot_old - INFO - main: 63 - Ошибка в функции main: Cannot close a running event loop

@@ -1,0 +1,13 @@
+.DS_Store
+.bot_env
+bot_env
+config
+tks_
+creds.py
+creds
+.idea
+/.idea/
+/creds/
+/hidden/
+__pycache__
+/data/

@@ -1,0 +1,6 @@
+grpcio
+grpcio-tools
+tinkoff-investments
+pandas
+matplotlib
+ta

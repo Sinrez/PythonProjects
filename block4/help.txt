@@ -1,3 +1,5 @@
 poetry run python3  hashing_strings.py
 
 source block_env/bin/activate
+
+http://127.0.0.1:8000/blockchain
