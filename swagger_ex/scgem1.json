@@ -1,0 +1,73 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Информация о заказе",
+    "type": "object",
+    "properties": {
+        "orderId": {
+            "description": "Уникальный идентификатор заказа",
+            "type": "string"
+        },
+        "cuetomerId": {
+            "description": "Уникальный идентификатор клиента",
+            "type": "string"
+        },        
+        "dateOfOrder": {
+            "description": "Дата создания заказа",
+            "type": "string",
+            "format": "date-time"
+        },
+        "dateOfUpdateOrder": {
+            "description": "Дата последнего обновления заказа",
+            "type": "string",
+            "format": "date-time"
+        },        
+        "address": {
+            "description": "Адрес проживания пользователя",
+            "type": "object",
+            "properties": {
+                "street": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "street",
+                "city",
+                "country"
+            ]
+        },
+        "products": {
+            "description": "Товары в заказе",
+            "type": "object",
+            "properties": {
+                "productId": {
+                    "type": "string"
+                },
+                "productName": {
+                    "type": "string"
+                },
+                "quantity": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "productId",
+                "productName",
+                "quantity"
+            ]
+        }
+    },
+    "required": [
+        "orderId",
+        "cuetomerId",
+        "dateOfOrder",
+        "dateOfUpdateOrder",
+        "address",
+        "products"
+    ]
+}
