@@ -1,0 +1,216 @@
+openapi: 3.0.2
+info:
+  title: Умный дом API
+  description: API для управления устройствами умного дома
+  version: 1.0.0
+servers:
+  - url: https://api.smarthome.com/v1
+    description: prod
+
+paths:
+  /lights:
+    get:
+      tags:
+      - Устройства умного дома
+      summary: Получить список всех лампочек
+      description: |
+        Возвращает список всех лампочек с возможностью фильтрации по цвету и пагинации
+
+        ### Пример использования:
+        - **Фильтр по цвету**: Чтобы получить только белые лампочки, используйте параметр `color=white`.
+        - **Пагинация**: Чтобы получить вторую страницу с 10 лампочками, используйте параметры `page=2` и `limit=10`.
+
+        ### Параметры:
+        - **`color`**: Фильтр по цвету лампочки. Например, `white`, `red`, `blue`.
+        - **`page`**: Номер страницы для пагинации. Начинается с `0`. Например, `page=2`.
+        - **`limit`**: Количество лампочек на странице. Например, `limit=10`.
+
+        ### Пример запроса:
+        ```http
+        GET/lights?color=white,red&page=1&limit=10
+        ```
+      parameters:
+        - name: color
+          in: query
+          required: false
+          description: Фильтр по цвету лампочки
+          schema:
+            type: string
+          example: "white"
+        - name: page
+          in: query
+          required: false
+          description: Номер страницы для пагинации
+          schema:
+            type: integer
+            minimum: 0
+          example: 1
+        - name: limit
+          in: query
+          required: false
+          description: Количество лампочек на странице
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+          example: 10
+      responses:
+        '200':
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lights:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: Идентификатор лампочки
+                          example: "12345E"
+                        name:
+                          type: string
+                          description: Название лампочки
+                          example: "Лампочка кухонная"
+                        color:
+                          type: string
+                          description: Цвет лампочки
+                          example: "WHITE"
+                          enum:
+                          - WHITE
+                          - RED
+                          - YELLOW
+                          - PINK
+                          - BLUE
+                          - GREEN
+                        brightness:
+                          type: integer
+                          description: Яркость лампочки (0-100)
+                          example: 51
+                        isOn:
+                          type: boolean
+                          description: Включена ли лампочка
+                      required:  
+                        - id
+                        - name
+                        - color
+                        - brightness
+                        - isOn
+                  total:
+                    type: integer
+                    description: Общее количество лампочек
+                    example: 40
+                  page:
+                    type: integer
+                    description: Текущая страница
+                    example: 1
+                  limit:
+                    type: integer
+                    description: Количество лампочек на странице
+                    example: 10
+                required:
+                  - id
+                  - name
+                  - color
+                  - brightness 
+                  - isOn
+        '400':
+          description: Плохой запрос
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещен
+        '404':
+          description: Не найдено
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /devices:
+    post:
+      tags:
+      - Устройства умного дома
+      summary: Создать новое устройство
+      description: Создает новое устройство в системе умного дома
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Device'
+      responses:
+        '201':
+          description: Устройство успешно создано
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Идентификатор устройства
+                    example: "12345E1"
+        '400':
+          description: Плохой запрос
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещен
+        '500':
+          description: Внутренняя ошибка сервера
+
+  /devices/{deviceId}:
+    delete:
+      tags:
+      - Устройства умного дома
+      summary: Удалить устройство
+      description: Удаляет устройство по его идентификатору
+      parameters:
+        - name: deviceId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Идентификатор устройства
+      responses:
+        '204':
+          description: Устройство удалено. Нет контента
+        '400':
+          description: Плохой запрос
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещен
+        '404':
+          description: Устройство не найдено
+        '500':
+          description: Внутренняя ошибка сервера
+
+components:
+  schemas:
+    Device:
+      type: object
+      required:
+        - name
+        - type
+        - manufacturer
+      properties:
+        name:
+          type: string
+          description: Название устройства
+          example: "Колонка мини"
+        type:
+          type: string
+          description: Тип устройства 
+          example: "column"
+        manufacturer:
+          type: string
+          description: Производитель устройства
+          example: "Yandex"
+        model:
+          type: string
+          description: Модель устройства
+          example: "Q12"
+
