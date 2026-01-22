@@ -1,0 +1,254 @@
+openapi: 3.0.0
+info:
+  title: BankApi
+  description: API для управления банковскими счетами и пользователями
+  version: "1.0.0"
+  contact:
+    name: Bank Api support
+    url: www.ob.ebank.ru
+servers:
+- url: https://openBank/ap/v1
+tags:
+- name: Счета
+- name: Пользователи
+
+paths:
+  /acconts/{accountId}: 
+    get:
+      tags:
+        - Cчета
+      summary: Получить информацию о банковском счете
+      description: Возвращает инфо о банковском счете
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: Уникальный идентификатор счета
+          schema:
+            type: integer
+      responses: 
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  accountId:
+                    type: integer 
+                    description: Уникальный идентификатор счета
+                    example: 11111343
+                  accountNumber:
+                    type: string 
+                    description: Номер счета
+                    example: "40700281000000000001"
+                  balance: 
+                    type: number
+                    format: double
+                    description: Баланс счета
+                    example: 2810.33
+                  status:
+                    type: string 
+                    description: Статус счета
+                    example: "ACTIVE"
+                    enum: 
+                      - ACTIVE
+                      - CLOSED
+                      - RESERVED
+        '400':
+          description: Плохой запрос
+        '401':
+          description: Неавторизован
+        '403':
+          description: Доступ запрещен
+        '404':
+          description: Не найдено
+        '500':
+          description: Сервер не доступен
+                
+  /accounts:
+    post:
+      tags:
+         - Счета 
+      summary: Создать новый счет
+      requestBody: 
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/NewAccount'
+      responses: 
+        '201':
+          description: Создано
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties: 
+                  accountId:
+                    type: integer 
+                    description: Уникальный идентификатор счета
+                    example: 11111343    
+        '400':
+          description: Плохой запрос
+        '401':
+          description: Неавторизован
+        '403':
+          description: Доступ запрещен
+        '500':
+          description: Сервер не доступен
+      
+  /users-profile:
+    put:
+      tags:
+        - Пользователи
+      summary: Обновить информацию о пользователе
+      description: Обновление профиля пользователя с основными параметрами
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileUpdate'
+      responses:
+        '200':
+          description: Профиль успешно обновлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResponse'
+        '400':
+          description: Неверные данные в запросе
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещен
+        '404':
+          description: Пользователь не найден
+        '500':
+          description: Сервер не доступен
+
+components:
+  schemas:
+    NewAccount:
+      type: object
+      properties: 
+        accountType:
+          type: string
+          description: Тип счета
+          example: "DEBET"
+        balance: 
+          type: number
+          description: Баланс счета
+          example: 10
+        firstName: 
+          type: string
+          description: Имя владельца
+          example: "Конь"
+        middleName: 
+          type: string
+          description: Отчество владельца
+          example: "Коневич"
+        lastName: 
+          type: string
+          description: Фамилия владельца
+          example: "Лошадкин"
+      required:
+        - accountType
+        - firstName
+        - lastName
+
+    UserProfileUpdate:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: Имя
+          minLength: 1
+          maxLength: 50
+          example: "Иван"
+        lastName:
+          type: string
+          description: Фамилия
+          minLength: 1
+          maxLength: 50
+          example: "Петров"
+        email:
+          type: string
+          format: email
+          description: Email
+          example: "ivan.petrov@example.com"
+        phone:
+          type: string
+          description: Телефон
+          pattern: '^\+7\d{10}$'
+          example: "+79161234567"
+        birthDate:
+          type: string
+          format: date
+          description: Дата рождения
+          example: "1990-05-15"
+        address:
+          type: string
+          description: Адрес
+          maxLength: 200
+          example: "ул. Ленина, д. 25, кв. 42, Москва, 101000"
+        employment:
+          type: string
+          description: Место работы
+          maxLength: 100
+          example: "ООО 'Технологии'"
+        position:
+          type: string
+          description: Должность
+          maxLength: 50
+          example: "Senior Developer"
+        salary:
+          type: number
+          format: float
+          description: Зарплата
+          minimum: 0
+          example: 450000.50
+        preferredCurrency:
+          type: string
+          description: Предпочитаемая валюта
+          enum: ["RUB", "USD", "EUR"]
+          example: "RUB"
+        language:
+          type: string
+          description: Язык интерфейса
+          enum: ["ru", "en"]
+          example: "ru"
+        notificationSms:
+          type: boolean
+          description: SMS уведомления
+          example: true
+        notificationEmail:
+          type: boolean
+          description: Email уведомления
+          example: false
+        riskCategory:
+          type: string
+          description: Категория риска
+          enum: ["LOW", "MEDIUM", "HIGH"]
+          example: "LOW"
+      required:
+        - firstName
+        - lastName
+        - email
+        - phone
+        - address
+        - language
+        - notificationEmail
+    UserProfileResponse:
+      type: object
+      properties:
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2025-112-20T10:15:30Z"
+        profile:
+          $ref: '#/components/schemas/UserProfileUpdate'
+      required:
+        - updatedAt
+        - profile

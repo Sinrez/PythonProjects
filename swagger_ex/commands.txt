@@ -1,0 +1,6 @@
+Local Files
+Open the swagger file and press F1.
+Run the Command Preview Swagger.
+OR
+
+Press Shift + Alt + P
