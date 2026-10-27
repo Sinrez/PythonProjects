@@ -156,23 +156,23 @@ def create_comparison_chart(data: list, output_path: str = "comparison_chart.png
     # Добавляем статистику в правый верхний угол
     if spreads:
         stats_text = (f"Мин: {min(spreads):.2f} руб\n"
-                     f"Макс: {max(spreads):.2f} руб\n"
-                     f"Средн: {avg_spread:.2f} руб")
+                    f"Макс: {max(spreads):.2f} руб\n"
+                    f"Средн: {avg_spread:.2f} руб")
         
         plt.text(0.98, 0.98, stats_text, transform=ax.transAxes,
-                 fontsize=11, verticalalignment='top', horizontalalignment='right',
-                 bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
+                fontsize=11, verticalalignment='top', horizontalalignment='right',
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
     
     # Добавляем текущее значение сбоку
     if spreads:
         last_value = spreads[-1]
         last_date = dates[-1]
         plt.annotate(f'Текущий: {last_value:.2f} руб', 
-                     xy=(last_date, last_value),
-                     xytext=(15, 0), textcoords='offset points',
-                     fontsize=11, fontweight='bold',
-                     bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.8),
-                     arrowprops=dict(arrowstyle='->', color='blue', alpha=0.7))
+                    xy=(last_date, last_value),
+                    xytext=(15, 0), textcoords='offset points',
+                    fontsize=11, fontweight='bold',
+                    bbox=dict(boxstyle='round', facecolor='lightblue', alpha=0.8),
+                    arrowprops=dict(arrowstyle='->', color='blue', alpha=0.7))
     
     # Улучшаем отступы
     plt.tight_layout()
