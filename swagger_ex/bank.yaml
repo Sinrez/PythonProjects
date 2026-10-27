@@ -10,15 +10,17 @@ servers:
 - url: https://openBank/ap/v1
 tags:
 - name: Счета
+  description: Операции с банковскими счетами
 - name: Пользователи
+  description: Управление профилями пользователей
 
 paths:
-  /acconts/{accountId}: 
+  /accounts/{accountId}: 
     get:
       tags:
-        - Cчета
+        - Счета
       summary: Получить информацию о банковском счете
-      description: Возвращает инфо о банковском счете
+      description: Возвращает информацию о банковском счете по его идентификатору
       parameters:
         - name: accountId
           in: path
@@ -26,35 +28,14 @@ paths:
           description: Уникальный идентификатор счета
           schema:
             type: integer
+            minimum: 1
       responses: 
         '200':
           description: OK
           content:
             application/json:
               schema: 
-                type: object
-                properties: 
-                  accountId:
-                    type: integer 
-                    description: Уникальный идентификатор счета
-                    example: 11111343
-                  accountNumber:
-                    type: string 
-                    description: Номер счета
-                    example: "40700281000000000001"
-                  balance: 
-                    type: number
-                    format: double
-                    description: Баланс счета
-                    example: 2810.33
-                  status:
-                    type: string 
-                    description: Статус счета
-                    example: "ACTIVE"
-                    enum: 
-                      - ACTIVE
-                      - CLOSED
-                      - RESERVED
+                $ref: '#/components/schemas/Account'
         '400':
           description: Плохой запрос
         '401':
@@ -64,13 +45,89 @@ paths:
         '404':
           description: Не найдено
         '500':
-          description: Сервер не доступен
+          description: Внутренняя ошибка сервера
+    
+    patch:
+      tags:
+        - Счета
+      summary: Частичное обновление счета
+      description: |
+        Частичное обновление информации о счете. 
+        Только переданные поля будут обновлены.
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: Уникальный идентификатор счета
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountUpdate'
+      responses:
+        '200':
+          description: Счет успешно обновлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Неверные данные в запросе
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещен
+        '404':
+          description: Счет не найден
+        '500':
+          description: Внутренняя ошибка сервера
+
+    delete:
+      tags:
+        - Счета
+      summary: Удалить счет
+      description: |
+        Удаление банковского счета.
+        
+        ⚠️ **Внимание**: Этот метод помечен как устаревший (deprecated). 
+        Используйте изменение статуса счета на CLOSED через PATCH метод вместо полного удаления.
+        
+        Удаление возможно только для счетов со статусом RESERVED или нулевым балансом.
+      deprecated: true
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          description: Уникальный идентификатор счета
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '204':
+          description: Счет успешно удален (нет содержимого)
+        '400':
+          description: Неверный запрос (счет нельзя удалить)
+        '401':
+          description: Не авторизован
+        '403':
+          description: Доступ запрещен
+        '404':
+          description: Счет не найден
+        '409':
+          description: Конфликт (счет имеет баланс или активный статус)
+        '500':
+          description: Внутренняя ошибка сервера
                 
   /accounts:
     post:
       tags:
-         - Счета 
+        - Счета 
       summary: Создать новый счет
+      description: Создание нового банковского счета для клиента
       requestBody: 
         required: true
         content:
@@ -79,7 +136,7 @@ paths:
               $ref: '#/components/schemas/NewAccount'
       responses: 
         '201':
-          description: Создано
+          description: Счет успешно создан
           content:
             application/json:
               schema: 
@@ -87,7 +144,7 @@ paths:
                 properties: 
                   accountId:
                     type: integer 
-                    description: Уникальный идентификатор счета
+                    description: Уникальный идентификатор созданного счета
                     example: 11111343    
         '400':
           description: Плохой запрос
@@ -96,14 +153,14 @@ paths:
         '403':
           description: Доступ запрещен
         '500':
-          description: Сервер не доступен
+          description: Внутренняя ошибка сервера
       
   /users-profile:
     put:
       tags:
         - Пользователи
       summary: Обновить информацию о пользователе
-      description: Обновление профиля пользователя с основными параметрами
+      description: Полное обновление профиля пользователя с основными параметрами
       requestBody:
         required: true
         content:
@@ -126,21 +183,80 @@ paths:
         '404':
           description: Пользователь не найден
         '500':
-          description: Сервер не доступен
+          description: Внутренняя ошибка сервера
 
 components:
   schemas:
+    Account:
+      type: object
+      properties: 
+        accountId:
+          type: integer 
+          description: Уникальный идентификатор счета
+          example: 11111343
+        accountNumber:
+          type: string 
+          description: Номер счета
+          example: "40700281000000000001"
+        accountType:
+          type: string
+          description: Тип счета
+          example: "DEBIT"
+          enum: ["DEBIT", "CREDIT", "SAVINGS"]
+        balance: 
+          type: number
+          format: double
+          description: Баланс счета
+          example: 2810.33
+        currency:
+          type: string
+          description: Валюта счета
+          example: "RUB"
+          enum: ["RUB", "USD", "EUR"]
+        status:
+          type: string 
+          description: Статус счета
+          example: "ACTIVE"
+          enum: 
+            - ACTIVE
+            - CLOSED
+            - RESERVED
+            - FROZEN
+        createdAt:
+          type: string
+          format: date-time
+          description: Дата создания счета
+          example: "2025-01-15T14:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Дата последнего обновления
+          example: "2025-12-20T10:15:30Z"
+      required:
+        - accountId
+        - accountNumber
+        - balance
+        - status
+        - createdAt
+
     NewAccount:
       type: object
       properties: 
         accountType:
           type: string
           description: Тип счета
-          example: "DEBET"
-        balance: 
+          example: "DEBIT"
+          enum: ["DEBIT", "CREDIT", "SAVINGS"]
+        currency:
+          type: string
+          description: Валюта счета
+          example: "RUB"
+          enum: ["RUB", "USD", "EUR"]
+        initialBalance: 
           type: number
-          description: Баланс счета
-          example: 10
+          description: Начальный баланс счета
+          minimum: 0
+          example: 1000
         firstName: 
           type: string
           description: Имя владельца
@@ -155,8 +271,29 @@ components:
           example: "Лошадкин"
       required:
         - accountType
+        - currency
         - firstName
         - lastName
+
+    AccountUpdate:
+      type: object
+      description: Объект для частичного обновления счета
+      properties:
+        status:
+          type: string
+          description: Новый статус счета
+          enum: ["ACTIVE", "CLOSED", "RESERVED", "FROZEN"]
+          example: "CLOSED"
+        accountType:
+          type: string
+          description: Тип счета
+          enum: ["DEBIT", "CREDIT", "SAVINGS"]
+          example: "SAVINGS"
+        currency:
+          type: string
+          description: Валюта счета
+          enum: ["RUB", "USD", "EUR"]
+          example: "USD"
 
     UserProfileUpdate:
       type: object
@@ -240,13 +377,14 @@ components:
         - address
         - language
         - notificationEmail
+        
     UserProfileResponse:
       type: object
       properties:
         updatedAt:
           type: string
           format: date-time
-          example: "2025-112-20T10:15:30Z"
+          example: "2025-12-20T10:15:30Z"
         profile:
           $ref: '#/components/schemas/UserProfileUpdate'
       required:
